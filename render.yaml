@@ -17,13 +17,13 @@ services:
       - key: CORS_ORIGIN
         sync: false # set to your deployed frontend URL after the static site is created
 
-  - type: web
-    name: swiftship-web
-    runtime: static
-    rootDir: client
-    plan: free
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
+ - type: web
+  name: swiftship-web
+  runtime: static
+  rootDir: client
+  # plan: free is removed here because static sites on Render do not take standard web instance plans
+  buildCommand: npm install && npm run build
+  staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         sync: false # set to https://swiftship-api.onrender.com/api (your backend URL + /api)
