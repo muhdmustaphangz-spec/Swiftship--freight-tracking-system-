@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --color-ink-950: #0f1720;
+  --color-ink-900: #16212e;
+  --color-ink-800: #1e2d3d;
+  --color-ink-700: #2a3d52;
+  --color-ink-600: #3d5670;
+  --color-ink-500: #5b7590;
+  --color-ink-400: #8ba3ba;
+  --color-ink-300: #b8c9d8;
+  --color-ink-200: #dbe5ed;
+  --color-ink-100: #eef2f6;
+  --color-ink-50: #f6f8fa;
+
+  --color-amber-600: #c8720f;
+  --color-amber-500: #e08a1e;
+  --color-amber-400: #f0a53d;
+  --color-amber-100: #fdf0dc;
+
+  --color-signal-green: #2f7d5f;
+  --color-signal-green-100: #e3f2eb;
+  --color-signal-blue: #2563a8;
+  --color-signal-blue-100: #e5eff8;
+  --color-signal-red: #b3432f;
+  --color-signal-red-100: #f9e8e4;
+
+  /*
+   * RADIUS SCALE — exactly 3 roles, used consistently everywhere via Tailwind's
+   * built-in utilities (no custom radius tokens needed):
+   *   rounded-md   → buttons, inputs, badges, small nested surfaces
+   *   rounded-xl   → cards, panels, forms — the main content-surface radius
+   *   rounded-full → pills/dots/avatars only (circular)
+   * Nothing in this codebase should use rounded-sm, rounded-lg, rounded-2xl, etc.
+   */
+
+  /*
+   * MOTION — one easing curve, two durations. Every transition in the app
+   * references these instead of Tailwind's default linear/ease timing.
+   * Defining --ease-standard here makes `ease-standard` available as a
+   * real Tailwind utility class (Tailwind v4 theme convention).
+   */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background: var(--color-ink-50);
+    color: var(--color-ink-950);
+  }
+  ::selection {
+    background: var(--color-amber-400);
+    color: var(--color-ink-950);
+  }
+}
+
+@layer utilities {
+  .tracking-tag {
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+
+  /* Standard interactive-surface treatment: a small, consistent lift.
+     Use on cards/rows that are clickable, not on every hoverable element. */
+  .lift-on-hover {
+    transition: transform var(--duration-base) var(--ease-standard),
+                box-shadow var(--duration-base) var(--ease-standard);
+  }
+  .lift-on-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px -4px rgb(15 23 32 / 0.15);
+  }
+
+  /* Skeleton loading block — replaces plain "Loading…" text on data views. */
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-ink-100) 25%, var(--color-ink-200) 37%, var(--color-ink-100) 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: 10px;
+  }
+  @keyframes skeleton-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Button/inline spinner — for async actions in progress. */
+  .spinner {
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
