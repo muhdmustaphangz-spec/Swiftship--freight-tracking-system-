@@ -11,11 +11,17 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false
+        sync: false # set manually in the Render dashboard (your Neon connection string)
       - key: JWT_SECRET
-        generateValue: true
+        generateValue: true # Render generates a strong random secret automatically
       - key: CORS_ORIGIN
-        sync: false
+        sync: false # set to your deployed frontend URL after the static site is created
+      - key: FRONTEND_URL
+        sync: false # same as CORS_ORIGIN — used to build links inside emails
+      - key: GMAIL_USER
+        sync: false # optional — leave blank to disable real email sending
+      - key: GMAIL_APP_PASSWORD
+        sync: false # optional — a Gmail "App Password", not your real password
 
   - type: web
     name: swiftship-web
@@ -25,8 +31,8 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        sync: false
+        sync: false # set to https://swiftship-api.onrender.com/api (your backend URL + /api)
     routes:
       - type: rewrite
         source: /*
-        destination: /index.html
+        destination: /index.html # SPA client-side routing support
