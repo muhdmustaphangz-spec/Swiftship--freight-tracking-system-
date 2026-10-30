@@ -1,34 +1,18 @@
-const nodemailer = require('nodemailer');
 const config = require('../config/env');
 
-let transporter = null;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-// In test mode, every "sent" email is captured here instead of (or in addition
-// to) being logged, so tests can assert on what would have been emailed —
-// e.g. that a password reset email contains a working reset link — without
-// needing real Gmail credentials or making a real network call in CI.
+// In test mode, every "sent" email is captured here instead of making a real
+// network call, so tests can assert on what would have been emailed.
 const sentEmails = [];
 
-function getTransporter() {
-  if (!config.email.enabled) return null;
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: config.email.user,
-        pass: config.email.appPassword,
-      },
-    });
-  }
-  return transporter;
-}
-
 /**
- * Sends an email if Gmail credentials are configured; otherwise logs and
- * no-ops. This means the app runs fine without email configured at all —
- * useful for local dev, tests, and anyone who hasn't set up Gmail yet.
- * Never throws: a failed/unconfigured email should never break the request
- * that triggered it (e.g. a booking should succeed even if notification fails).
+ * Sends an email via Brevo's transactional HTTP API if credentials are
+ * configured; otherwise logs and no-ops. Never throws: a failed or
+ * unconfigured email should never break the request that triggered it.
+ *
+ * Brevo's HTTPS API (port 443) is used instead of SMTP because Render's free
+ * tier blocks outbound SMTP ports (25/465/587).
  */
 async function sendEmail({ to, subject, html, text }) {
   if (config.env === 'test') {
@@ -36,8 +20,7 @@ async function sendEmail({ to, subject, html, text }) {
     return { sent: true, test: true };
   }
 
-  const t = getTransporter();
-  if (!t) {
+  if (!config.email.enabled) {
     if (config.env === 'development') {
       // eslint-disable-next-line no-console
       console.log(`[email] Skipped (not configured): "${subject}" to ${to}`);
@@ -46,13 +29,27 @@ async function sendEmail({ to, subject, html, text }) {
   }
 
   try {
-    await t.sendMail({
-      from: `"${config.email.fromName}" <${config.email.user}>`,
-      to,
-      subject,
-      html,
-      text: text || html.replace(/<[^>]+>/g, ''),
+    const res = await fetch(BREVO_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'api-key': config.email.brevoApiKey,
+      },
+      body: JSON.stringify({
+        sender: { name: config.email.fromName, email: config.email.fromAddress },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+        textContent: text || html.replace(/<[^>]+>/g, ''),
+      }),
     });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Brevo API returned ${res.status}: ${body.slice(0, 300)}`);
+    }
+
     return { sent: true };
   } catch (err) {
     // eslint-disable-next-line no-console
