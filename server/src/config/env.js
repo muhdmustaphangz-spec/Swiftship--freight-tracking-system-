@@ -16,7 +16,7 @@ const config = {
      brevoApiKey: process.env.BREVO_API_KEY || null,
      fromAddress: process.env.EMAIL_FROM_ADDRESS || null,
      fromName: process.env.EMAIL_FROM_NAME || 'SwiftShip Logistics',
-   },,
+   },
 };
 
 if (config.env === 'production') {
