@@ -12,20 +12,8 @@ const { uploadsDir } = require('./middleware/upload');
 
 function createApp() {
   const app = express();
-function createApp() {
-  const app = express();
   app.set('trust proxy', 1);
 
-  // Security headers. CSP disabled: this is a JSON API + a separately-hosted SPA,
-  // not a server-rendered HTML app, so a default CSP mostly adds friction here.
-  app.use(helmet({ contentSecurityPolicy: false }));
-
-  app.use(cors({ origin: config.corsOrigin }));
-  app.use(express.json({ limit: '10mb' }));
-
-  if (config.env !== 'test') {
-    app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
-  }
   // Security headers. CSP disabled: this is a JSON API + a separately-hosted SPA,
   // not a server-rendered HTML app, so a default CSP mostly adds friction here.
   app.use(helmet({ contentSecurityPolicy: false }));
