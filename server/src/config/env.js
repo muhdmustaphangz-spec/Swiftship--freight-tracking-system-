@@ -11,12 +11,12 @@ const config = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   databaseUrl: process.env.DATABASE_URL || null,
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS, 10) || 10,
-  email: {
-    enabled: !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD),
-    user: process.env.GMAIL_USER || null,
-    appPassword: process.env.GMAIL_APP_PASSWORD || null,
-    fromName: process.env.EMAIL_FROM_NAME || 'SwiftShip Logistics',
-  },
+     email: {
+     enabled: !!(process.env.BREVO_API_KEY && process.env.EMAIL_FROM_ADDRESS),
+     brevoApiKey: process.env.BREVO_API_KEY || null,
+     fromAddress: process.env.EMAIL_FROM_ADDRESS || null,
+     fromName: process.env.EMAIL_FROM_NAME || 'SwiftShip Logistics',
+   },,
 };
 
 if (config.env === 'production') {
